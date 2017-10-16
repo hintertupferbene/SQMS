@@ -1,4 +1,3 @@
-
 This is the python implementation of the SQMS metric MATLAB code provided by the authors of the paper. 
 
 The SQMS metric can be computed either for the grayscale of original and reconstructed image or from the chroma (Cb and Cr) as follows :
