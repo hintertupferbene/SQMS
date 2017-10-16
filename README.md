@@ -7,3 +7,8 @@ Implementation provided by the authors of the paper.
 Reimplementation of the Matlab implementation.
 
 The motion blur window has to be created using matlab with specific parameters and is then loaded into the Python implementation.
+
+# TestImages
+Provided by authors of paper.
+
+im1_gray.png and im2_gray.png are converted from its original images by Matlab's rgb2gray() function.
