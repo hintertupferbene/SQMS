@@ -13,37 +13,13 @@ from scipy import misc
 """
  RGB to Grayscale conversion 
 """
-def rgb2grayfloat(filename):
-    rgb = misc.imread(filename)
+def rgb2grayfloat(rgb):
     r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
     matrix = np.linalg.inv([[1.0, 0.956, 0.621], [1.0, -0.272, -0.647], [1.0, -1.106, 1.703]])
     r1, g1, b1 = matrix[0,0], matrix[0,1], matrix[0,2]
     gray = r1 * r + g1 * g + b1 * b
-    gray = np.array(gray)
     return gray.astype(float)
 
-""" 
-RGB to Y, Cb abd Cr conversion #
-"""
-def rgb2ycbcrfloat(filename):
-    rgb  = misc.imread(filename)
-    height, width, channels = rgb.shape
-    assert channels == 3
-    ycbcr = np.zeros((height,width,channels), dtype=np.uint8)
-    
-    R, G, B = np.dsplit(rgb.astype(np.int32),3)
-    Y = ( (  66 * R + 129 * G +  25 * B + 128) >> 8) +  16
-    Cb = ( ( -38 * R -  74 * G + 112 * B + 128) >> 8) + 128
-    Cr = ( ( 112 * R -  94 * G -  18 * B + 128) >> 8) + 128
-    
-    Y[Y>235] = 235
-    Cb[Cb>240] = 240
-    Cr[Cr>240] = 240
-    
-    ycbcr = np.dstack((Y, Cb, Cr))
-    ycbcr[ycbcr<16] = 16
-    return ycbcr.astype(np.uint8)
-	   
 """
 computation of weighted Gradient Similarity Index with weights from 
 Gaussian and Motion Blur convolution kernels
@@ -94,6 +70,8 @@ def mot_index(x1):
 General SQMS metric computation
 """
 def gen_sqms(x1,x2):
+    x1 = x1.astype(float)
+    x2 = x2.astype(float)
     m1 = gau_index(x1,(11,11),5.5)
     m2 = mot_index(x1)
     y1 = gsi_index(x1, x2, 250)
@@ -108,10 +86,13 @@ def gen_sqms(x1,x2):
 """
 SQMS metric computation for original and reconstructed image in grayscale
 """
-def sqms_gray(orig_img,reco_img):
-    x1 = rgb2grayfloat(orig_img)
-    x2 = rgb2grayfloat(reco_img)
-    sqms = float(gen_sqms(x1,x2))
+def sqms_gray(x1,x2):
+    # x1 and x2 can be RGB images or grayscale images as numpy arrays
+    if len(x1.shape) > 2 and x1.shape > 1:
+        # more than one channel
+        x1 = rgb2grayfloat(x1[:,:,0:3])
+        x2 = rgb2grayfloat(x2[:,:,0:3])
+    sqms = gen_sqms(x1,x2)
     print('sqms_gray = '+repr(sqms))
     return sqms
 
@@ -119,15 +100,13 @@ def sqms_gray(orig_img,reco_img):
 SQMS metric computation for Cb abd Cr of 
 original and reconstructed image
 """
-def sqms_chroma(orig_img,reco_img):
-    x1 = rgb2ycbcrfloat(orig_img)
-    x2 = rgb2ycbcrfloat(reco_img)
-    x1_cb = x1[:,:,1]
-    x1_cr = x1[:,:,2]
-    x2_cb = x2[:,:,1]
-    x2_cr = x2[:,:,2]
-    sqms_cb = float(gen_sqms(x1_cb,x2_cb))
-    sqms_cr = float(gen_sqms(x1_cr,x2_cr))
+def sqms_chroma(YCbCr_orig,YCbCr_reco):
+    x1_cb = YCbCr_orig[:,:,1]
+    x1_cr = YCbCr_orig[:,:,2]
+    x2_cb = YCbCr_reco[:,:,1]
+    x2_cr = YCbCr_reco[:,:,2]
+    sqms_cb = gen_sqms(x1_cb,x2_cb)
+    sqms_cr = gen_sqms(x1_cr,x2_cr)
     print('sqms_cb = '+repr(sqms_cb)+'  sqms_cr = '+repr(sqms_cr))
     sqms_chroma = (sqms_cb + sqms_cr)/2
     print('sqms_chroma = '+repr(sqms_chroma))
