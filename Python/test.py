@@ -6,10 +6,10 @@ import sqms
 
 def main():
 
-	im1 = 'im1.png'
-	im2 = 'im2.png'
-	#im1 = 'im1_gray.png'
-	#im2 = 'im2_gray.png'
+	im1 = '../TestImages/im1.png'
+	im2 = '../TestImages/im2.png'
+	#im1 = '../TestImages/im1_gray.png'
+	#im2 = '../TestImages/im2_gray.png'
 
 	x1 = misc.imread(im1)
 	x2 = misc.imread(im2)
