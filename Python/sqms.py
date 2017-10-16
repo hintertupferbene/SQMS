@@ -9,7 +9,6 @@ import numpy as np
 import scipy.io as sio
 from scipy import signal
 from scipy import misc
-import pymatlab
 
 """
  RGB to Grayscale conversion 
@@ -51,7 +50,7 @@ computation of weighted Gradient Similarity Index with weights from
 Gaussian and Motion Blur convolution kernels
 """
 def gsi_index(x1,x2,tt):
-    ddx = np.array([[3, 0, -3],[10, 0, -10],[3, 0, -3]])
+    ddx = np.array([[3, 0, -3],[10, 0, -10],[3, 0, -3]], dtype=float)
     ddx = ddx/16
     ddy = np.transpose(ddx)
     xx1 = signal.convolve2d(x1,ddx,'same')
@@ -96,9 +95,9 @@ def mot_index(x1):
 General SQMS metric computation
 """
 def gen_sqms(x1,x2):
-    y1 = gsi_index(x1,x2,250)
     m1 = gau_index(x1,(11,11),5.5)
     m2 = mot_index(x1)
+    y1 = gsi_index(x1, x2, 250)
     y2 = np.subtract(np.ones(x1.shape),gsi_index(x1,m1,200))
     y3 = np.subtract(np.ones(x1.shape),gsi_index(x1,m2,1))
     y4 = np.divide(np.add(y2,y3),2)
