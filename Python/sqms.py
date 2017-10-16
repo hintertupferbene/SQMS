@@ -20,8 +20,7 @@ def rgb2grayfloat(filename):
     r1, g1, b1 = matrix[0,0], matrix[0,1], matrix[0,2]
     gray = r1 * r + g1 * g + b1 * b
     gray = np.array(gray)
-    gray.astype(float)
-    return gray
+    return gray.astype(float)
 
 """ 
 RGB to Y, Cb abd Cr conversion #
